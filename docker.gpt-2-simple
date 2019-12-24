@@ -21,12 +21,17 @@ WORKDIR /opt/gpt-2-simple
 RUN pip install -r requirements.txt
 RUN pip install -e .
 
+
+# install unpacking script
+# call it using "# extract file.extension"
+COPY ./extract.sh /opt/extract.sh
+
+
 ENV WORKSPACE /workspace
-
 RUN mkdir -p $WORKSPACE
-
 WORKDIR $WORKSPACE
 
+# training wrapper
 COPY ./train_language.sh $WORKSPACE/train_language.sh
 
 # INRIA OSCAR Dataset https://traces1.inria.fr/oscar/
@@ -35,18 +40,15 @@ ENV DATASET_URL https://traces1.inria.fr/oscar/files/Compressed/
 # set default language learning
 ENV LANGUAGE en
 
-# OSCAR URL for desired language
-ENV URL $DATASET_URL$LANGUAGE\_dedup.txt.gz
-
-# OSCAR first $DATASET_SIZE MB for the desired language
+# DATASET first $DATASET_SIZE MB for the desired language
 # this is to avoid a too big dataset
 ENV DATASET_SIZE 10M
 
 #PARAMS for training
-ENV RUN_NAME $LANGUAGE\_$MODEL_NAME
+ENV RUN_NAME ${LANGUAGE}_${MODEL_NAME}
 ENV CHECKPOINT_DIR $WORKSPACE/checkpoint
 ENV MODEL_NAME 124M
-ENV MODEL_DIR models
+ENV MODEL_DIR $WORKSPACE/models
 ENV DATASET $WORKSPACE/dataset
 ENV STEPS 5000
 ENV RESTORE_FROM latest
@@ -57,6 +59,7 @@ ENV OPTIMIZER adam
 ENV OVERWRITE false
 ENV MULTI_GPU true
 ENV REPORTING_CONFIG $WORKSPACE/config.yml
+
 
 ENTRYPOINT ["/bin/bash"]
 

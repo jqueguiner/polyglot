@@ -1,14 +1,39 @@
-export URL=$DATASET_URL$LANGUAGE\_dedup.txt.gz
-wget -O $LANGUAGE.txt.gz $URL
-unpigz $LANGUAGE.txt.gz
-head -c $DATASET_SIZE $LANGUAGE.txt > $DATASET
 
-gpt_2_simple finetune \
+source /opt/extract.sh
+
+# DATASET_URL = "" will lead to local DATASET definition
+if ! [[ -z "$DATASET_URL" ]]; then
+	# special url binding for OSCAR dataset
+	if [[ "$DATASET_URL" == "https://traces1.inria.fr/oscar/files/Compressed/" ]]; then
+		dl_filename=${LANGUAGE}_dedup.txt.gz
+		DATASET_URL=${DATASET_URL}${dl_filename}
+	else
+		dl_filename="${DATASET_URL##*/}"
+	fi
+	filename=$(echo "$dl_filename" | cut -f 1 -d '.')
+
+	wget -O $dl_filename $DATASET_URL
+	extract $dl_filename
+	for f in $(ls | grep $filename); do
+		export DATASET=$f
+	done
+fi
+
+
+# GET the first DATASET_SIZE MB of DATASET
+head -c $DATASET_SIZE $DATASET > ${DATASET}_preprocessed
+
+
+available_models=$(gpt_2_simple list_models)
+
+
+if [[ $available_models == *"$MODEL_NAME"* ]]; then
+  gpt_2_simple finetune \
 			--run_name $RUN_NAME \
 			--checkpoint_dir $CHECKPOINT_DIR \
 			--model_name $MODEL_NAME \
 			--model_dir $MODEL_DIR \
-			--dataset $DATASET \
+			--dataset ${DATASET}_preprocessed \
 			--steps $STEPS \
 			--restore_from $RESTORE_FROM \
 			--sample_every $SAMPLE_EVERY \
@@ -17,3 +42,9 @@ gpt_2_simple finetune \
 			--overwrite $OVERWRITE \
 			--multi_gpu $MULTI_GPU \
 			--reporting_config $REPORTING_CONFIG
+else
+  echo "[ERROR] $MODEL_NAME is not part of available OpenAI GPT-2 models should be in list:"
+  echo $available_models
+fi
+
+
