@@ -1,0 +1,8 @@
+pgsql:
+  host: my_host
+  user: my_user
+  password: my_pass
+  database: my_db
+  port: my_port
+api:
+  write_token: my_token

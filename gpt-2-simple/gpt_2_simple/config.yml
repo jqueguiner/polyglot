@@ -1,0 +1,4 @@
+monitoring-api:
+  url: http://watch-me-learn-to-talk.com
+  port: 80
+  write_token: NH4NRq3RZcDfyYVM7BupnDpseoBEXkiuRrqeRk2QWXzgGua7VpfRHHRNNHn4AvgM

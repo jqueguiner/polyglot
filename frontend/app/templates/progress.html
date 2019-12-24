@@ -1,0 +1,267 @@
+
+
+{% include "header.html" %}
+<figure class="highcharts-figure">
+  <div id="ts-chart">
+    <img src="https://i.gifer.com/origin/ee/ee23fe6bb28fad341eef173f611ae952.gif"/>
+  </div>
+  <div id="step-chart"></div>
+  <div id="best_loss-chart"></div>
+  <br/>
+  <br/>
+  <br/>
+  <div id="text">
+    <section id="more" class="container pb-5">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="table-responsive">
+            <table id="text_samples" class="table table-hover table-sm display" style="width:100%">
+              <thead>
+                <tr>
+                  <th>experiment name</th>
+                  <th>Type</th>
+                  <th>Text</th>
+                  <th>Text English</th>
+                  <th>Step</th>
+                  <th>Hidden Step</th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  </table>
+  </div>
+</figure>
+{% include "main.html" %}
+{% include "footer.html" %}
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/series-label.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script>
+  function refresh(div, x, y, title, subtitle, x_axis, y_axis, type) {
+    $.ajax({
+      url: "/get_progress",
+      type: 'POST',
+      dataType: 'json',
+      contentType: "application/json; charset=utf-8",
+      data: JSON.stringify({
+        "y": y
+      }),
+      success: function(data) {
+        var ts_series = [];
+        for (experiment in data) {
+          my_ts_serie = {}
+          my_ts_serie["name"] = data[experiment]["experiment"]["name"]
+          my_ts_serie["description"] = data[experiment]["experiment"]["description"]
+
+          ts = []
+
+          for (i in data[experiment]["metrics"]) {
+            ts.push([data[experiment]["metrics"][i][x], data[experiment]["metrics"][i]["value"]])
+          }
+
+          if (type == 'date') {
+            my_ts_serie["data"] = ts.map(function(p) {
+              return [+new Date(p[0]), p[1]];
+            })
+          } else {
+            my_ts_serie["data"] = ts
+          }
+          ts_series.push(my_ts_serie)
+
+          redraw_chart(div, title, subtitle, "", x_axis, y_axis, ts_series, type)
+
+        }
+      }
+    });
+  }
+
+  function draw_table(first_run = false) {
+    $.ajax({
+      url: "/get_progress",
+      type: 'POST',
+      dataType: 'json',
+      contentType: "application/json; charset=utf-8",
+      data: JSON.stringify({
+        "y": null
+      }),
+      success: function(data) {
+
+        var text_table = $('#text_samples').DataTable();
+        text_table.clear()
+        for (experiment in data) {
+          for (i in data[experiment]["text"]) {
+            text_table.row.add([
+              data[experiment]["experiment"]["name"],
+              data[experiment]["text"][i]["key"],
+              data[experiment]["text"][i]["value"],
+              data[experiment]["text"][i]["text_en"],
+              "step : " + data[experiment]["text"][i]["step"] + ", loss : " + data[experiment]["text"][i]["loss"],
+              data[experiment]["text"][i]["step"],
+            ]).draw(true);
+          }
+        }
+
+        $(".dtrg-level-2").on("click", function() {
+          $(this).next().toggle("slow", function() {});
+        })
+        $(".dtrg-level-1").on("click", function() {
+          $(this).nextUntil(".dtrg-level-1").click()
+        })
+      }
+    });
+
+
+  };
+
+
+  function refresh_all() {
+    ts_chart = refresh('ts-chart', 'timestamp', 'loss', 'loss vs time', 'loss vs time', 'Time', 'Loss', 'date')
+    step_chart = refresh('step-chart', 'step', 'loss', 'loss vs step', 'loss vs step', 'Step', 'Loss', 'int')
+    bestloss_chart = refresh('best_loss-chart', 'step', 'best_loss', 'Best loss vs time', 'Best loss vs step', 'Step', 'Best Loss', 'int')
+    draw_table()
+  }
+
+  draw_table(true)
+
+  var iOS = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
+
+  if (iOS) {
+    reload_delay = 60000 * 2
+  } else {
+    reload_delay = 60000 * 2
+  }
+
+  refresh_all()
+
+  window.setInterval(function() {
+    refresh_all()
+  }, reload_delay);
+
+  $('#text_samples').DataTable({
+    responsive: true,
+    order: [
+      [0, 'asc'],
+      [1, 'asc'],
+      [5, 'desc']
+    ],
+    rowGroup: {
+      dataSrc: [0, 1, 4],
+    },
+    columnDefs: [{
+      targets: [0, 1, 4, 5],
+      visible: false
+    }],
+    "autoWidth": false,
+    "pageLength": 200
+  }).draw(true);
+
+
+  function redraw_chart(div_id, title, subtitle, description, x_label, y_label, data, type) {
+    switch (type) {
+      case 'date':
+        var xAxis = {
+          type: 'datetime',
+          dateTimeLabelFormats: {
+            millisecond: '%H:%M:%S.%L',
+            second: '%H:%M:%S',
+            minute: '%e. %b \'%y %H:%M',
+            hour: '%e. %b \'%y %H:%M',
+            day: '%e. %b \'%y %H:%M',
+            week: '%e. %b \'%y %H:%M',
+            month: '%e. %b \'%y %H:%M',
+            year: '%e. %b \'%y %H:%M'
+          },
+          title: {
+            text: x_label
+          },
+          lineWidth: 0.5,
+        }
+        var tooltip = {
+          headerFormat: '<b>{series.name}</b><br>',
+          pointFormat: '{point.x:%e. %b : %H:%M}: {point.y:.2f}'
+        }
+        break;
+      case 'int':
+        var xAxis = {
+          title: {
+            text: x_label
+          },
+          lineWidth: 0.5,
+        }
+
+        var tooltip = {
+          headerFormat: '<b>{series.name}</b><br>',
+          pointFormat: '{point.x} : {point.y:.2f}'
+        }
+
+        break;
+
+    }
+
+
+    chart = new Highcharts.chart(div_id, {
+      chart: {
+        type: 'spline',
+        zoomType: 'x'
+      },
+      title: {
+        text: title
+      },
+      subtitle: {
+        text: subtitle
+      },
+      caption: {
+        text: description
+      },
+      xAxis: xAxis,
+      yAxis: {
+        title: {
+          text: y_label
+        },
+        min: 0,
+      },
+      tooltip: tooltip,
+
+      plotOptions: {
+        series: {
+          marker: {
+            enabled: false
+          }
+        }
+      },
+
+      colors: ['#6CF', '#39F', '#06C', '#036', '#000'],
+
+      series: data,
+      responsive: {
+        rules: [{
+          condition: {
+            maxWidth: 500
+          },
+          chartOptions: {
+            plotOptions: {
+              series: {
+                marker: {
+                  radius: 2.5
+                }
+              }
+            }
+          }
+        }]
+      }
+    });
+    return chart
+  }
+
+  $(document).ready(function() {
+    $('#text_samples').DataTable();
+  });
+
+</script>
+
