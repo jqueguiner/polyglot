@@ -2,11 +2,17 @@ FROM tensorflow/tensorflow:1.13.0rc0-gpu-py3
 
 RUN apt-get update
 
-RUN apt-get install vim -y
+RUN apt-get install \
+	vim \
+	less \
+	curl \
+	wget \
+	pigz -y
 
 RUN mkdir -p /opt
 
 COPY ./gpt-2-simple /opt/gpt-2-simple
+
 
 WORKDIR /opt/gpt-2-simple
 
@@ -15,18 +21,28 @@ WORKDIR /opt/gpt-2-simple
 RUN pip install -r requirements.txt
 RUN pip install -e .
 
-ARG WORKSPACE=/workspace
+ENV WORKSPACE /workspace
 
 RUN mkdir -p $WORKSPACE
 
 WORKDIR $WORKSPACE
 
-# INRIA OSCAR Dataset
-#ARG DATASET_URL https://traces1.inria.fr/oscar/files/Compressed/
+COPY ./train_language.sh $WORKSPACE/train_language.sh
+
+# INRIA OSCAR Dataset https://traces1.inria.fr/oscar/
+ENV DATASET_URL https://traces1.inria.fr/oscar/files/Compressed/
 
 # set default language learning
-#ENV LANGUAGE en
+ENV LANGUAGE en
 
+# OSCAR URL for desired language
+ENV URL $DATASET_URL$LANGUAGE\_dedup.txt.gz
+
+# OSCAR first $DATASET_SIZE MB for the desired language
+# this is to avoid a too big dataset
+ENV DATASET_SIZE 10M
+
+#PARAMS for training
 ENV RUN_NAME $LANGUAGE\_$MODEL_NAME
 ENV CHECKPOINT_DIR $WORKSPACE/checkpoint
 ENV MODEL_NAME 124M
@@ -42,19 +58,6 @@ ENV OVERWRITE false
 ENV MULTI_GPU true
 ENV REPORTING_CONFIG $WORKSPACE/config.yml
 
+ENTRYPOINT ["/bin/bash"]
 
-# ENTRYPOINT gpt_2_simple finetune \
-# 				--run_name $RUN_NAME \
-# 				--checkpoint_dir $CHECKPOINT_DIR \
-# 				--model_name $MODEL_NAME \
-# 				--model_dir $MODEL_DIR \
-# 				--dataset $DATASET \
-# 				--steps $STEPS \
-# 				--restore_from $RESTORE_FROM \
-# 				--sample_every $SAMPLE_EVERY \
-# 				--print_every $PRINT_EVERY \
-# 				--optimizer $OPTIMIZER \
-# 				--overwrite $OVERWRITE \
-# 				--multi_gpu $MULTI_GPU \
-# 				--reporting_config $REPORTING_CONFIG
-
+CMD ["train_language.sh"]
