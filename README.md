@@ -1,4 +1,4 @@
-## CREDIT ##
+# CREDIT #
 Credit goes to https://github.com/minimaxir/gpt-2-simple for the finetuning part
 and to : \
 https://twitter.com/theshawwn \
@@ -6,11 +6,38 @@ https://twitter.com/l4rz \
 https://twitter.com/gwern \
 for inspiration
 
-## BUILDING ###
+# REPORTING #
+## PURPOSE ##
+Reporting system for finetuning monitoring, you can track multiple GPT-2 experiment at the same time with :
+- Quantitative analytics (Loss for instance) and 
+- Qualitativ analytics (Generated text for a giving step)
+
+Example : http://www.watch-me-learn-to-talk.com/progress
+
+## PRE-REQUISITES ##
+Have a postgresql database
+with the appropriate schema
+see => monitoring/schema.sql
+## BUILDING DOCKER FOR REPORTING SYSTEM ##
+```
+docker build -t gpt-2-monitoring -f docker.monitoring  .
+
+```
+## RUNNING THE MONITORING BACKEND ##
 ```
 docker build -t gpt-2-simple -f docker.gpt-2-simple  .
 
 ```
+
+## BUILDING DOCKER FOR FINETUNING GPT-2 ###
+```
+docker build -t gpt-2-simple -f docker.gpt-2-simple  .
+
+```
+
+
+
+
 
 ## RUNNING FOR FINETUNING ##
 
@@ -19,11 +46,15 @@ nvidia-docker run -it -v /mnt/netapp/:/mnt/netapp/ \
 -e REPORTING_CONFIG=/mnt/netapp/config.yml \
 -e DATASET_SIZE=2M \
 -e LANGUAGE=an \
--e MODEL=775M \
--e RUN_NAME=an_775M \
+-e MODEL=774M \
+-e RUN_NAME=an_774M \
 gpt-2-simple
 ```
+This means train gpt-2 774M parameters for language "an" (Aragonese) in [OSCAR](https://traces1.inria.fr/oscar/) default dataset using only its 2 first MB of corpus.
 
+The experiment will be using the config in /mnt/netapp/config.yml to report progress.
+
+## Detailed Variables ##
 What it means:
 
 | variable         | default value                                    | settable at runtime | Runtime setting example                                                           | definition                                                                                                                                                                                                                                                    |
