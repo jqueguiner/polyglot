@@ -19,11 +19,15 @@ nvidia-docker run -it -v /mnt/netapp/:/mnt/netapp/ \
 -e REPORTING_CONFIG=/mnt/netapp/config.yml \
 -e DATASET_SIZE=2M \
 -e LANGUAGE=an \
--e MODEL=775M \
--e RUN_NAME=an_775M \
+-e MODEL=774M \
+-e RUN_NAME=an_774M \
 gpt-2-simple
 ```
+This means train gpt-2 774M parameters for language "an" (Aragonese) in [OSCAR](https://traces1.inria.fr/oscar/) default dataset using only its 2 first MB of corpus.
 
+The experiment will be using the config in /mnt/netapp/config.yml to report progress.
+
+## Detailed Variables ##
 What it means:
 
 | variable         | default value                                    | settable at runtime | Runtime setting example                                                           | definition                                                                                                                                                                                                                                                    |
