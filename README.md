@@ -29,6 +29,7 @@ docker build -t gpt-2-monitoring -f docker.monitoring  .
 docker build -t gpt-2-simple -f docker.gpt-2-simple  .
 
 ```
+# FINETUNING ANY LANGUAGE WITH ANY MODEL #
 
 ## BUILDING DOCKER FOR FINETUNING GPT-2 ###
 ```
