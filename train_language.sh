@@ -28,6 +28,15 @@ available_models=$(gpt_2_simple list_models)
 
 
 if [[ $available_models == *"$MODEL_NAME"* ]]; then
+
+  if [[ -z "${RUN_NAME}" ]]; then
+    export RUN_NAME=${LANGUAGE}_${MODEL_NAME}
+  fi
+
+  if [[ -z "${CHECKPOINT_DIR}" ]]; then
+    export CHECKPOINT_DIR=$WORKSPACE/checkpoint/$RUN_NAME
+  fi
+
   gpt_2_simple finetune \
 			--run_name $RUN_NAME \
 			--checkpoint_dir $CHECKPOINT_DIR \
