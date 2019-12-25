@@ -18,6 +18,7 @@ Example : http://www.watch-me-learn-to-talk.com/progress
 Have a postgresql database
 with the appropriate schema
 see => monitoring/schema.sql
+https://github.com/jqueguiner/polyglot/blob/master/monitoring/schema.sql
 ## BUILDING DOCKER FOR REPORTING SYSTEM ##
 ```
 docker build -t gpt-2-monitoring -f docker.monitoring  .
