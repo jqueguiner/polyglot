@@ -24,9 +24,12 @@ https://github.com/jqueguiner/polyglot/blob/master/monitoring/schema.sql
 docker build -t gpt-2-monitoring -f docker.monitoring  .
 
 ```
+## ADJUST API WRITE TOKEN ##
+https://github.com/jqueguiner/polyglot/blob/master/monitoring/config.yml
+
 ## RUNNING THE MONITORING BACKEND ##
 ```
-docker build -t gpt-2-simple -f docker.gpt-2-simple  .
+docker run -d -p 5000 gpt-2-monitoring
 
 ```
 # FINETUNING ANY LANGUAGE WITH ANY MODEL #
@@ -36,11 +39,6 @@ docker build -t gpt-2-simple -f docker.gpt-2-simple  .
 docker build -t gpt-2-simple -f docker.gpt-2-simple  .
 
 ```
-
-
-
-
-
 ## RUNNING FOR FINETUNING ##
 
 ```
