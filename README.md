@@ -1,4 +1,4 @@
-## CREDIT ##
+# CREDIT #
 Credit goes to https://github.com/minimaxir/gpt-2-simple for the finetuning part
 and to : \
 https://twitter.com/theshawwn \
@@ -6,11 +6,38 @@ https://twitter.com/l4rz \
 https://twitter.com/gwern \
 for inspiration
 
-## BUILDING ###
+# REPORTING #
+## PURPOSE ##
+Reporting system for finetuning monitoring, you can track multiple GPT-2 experiment at the same time with :
+- Quantitative analytics (Loss for instance) and 
+- Qualitativ analytics (Generated text for a giving step)
+
+Example : http://www.watch-me-learn-to-talk.com/progress
+
+## PRE-REQUISITES ##
+Have a postgresql database
+with the appropriate schema
+see => monitoring/schema.sql
+## BUILDING DOCKER FOR REPORTING SYSTEM ##
+```
+docker build -t gpt-2-monitoring -f docker.monitoring  .
+
+```
+## RUNNING THE MONITORING BACKEND ##
 ```
 docker build -t gpt-2-simple -f docker.gpt-2-simple  .
 
 ```
+
+## BUILDING DOCKER FOR FINETUNING GPT-2 ###
+```
+docker build -t gpt-2-simple -f docker.gpt-2-simple  .
+
+```
+
+
+
+
 
 ## RUNNING FOR FINETUNING ##
 
