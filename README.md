@@ -1,3 +1,10 @@
+## CREDIT ##
+Credit goes to https://github.com/minimaxir/gpt-2-simple for the finetuning part
+and to : \
+https://twitter.com/theshawwn \
+https://twitter.com/l4rz \
+https://twitter.com/gwern \
+for inspiration
 
 ## BUILDING ###
 ```
