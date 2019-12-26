@@ -8,6 +8,24 @@ for inspiration
 
 Please Follow https://twitter.com/minimaxir his blog is there : https://minimaxir.com/
 
+
+# GENERAL CONCEPT #
+TODO : 
+- GENERAL ARCHITECTURE DIAGRAM
+- WRITE QUICKSTART
+- DOCKERHUB FOR MONITORING
+- DOCKER COMPOSE ?
+- 
+
+
+# QUICKSTART #
+
+https://hub.docker.com/r/guignol95/polyglot
+
+```
+docker pull guignol95/polyglot:latest
+```
+
 # REPORTING #
 ## PURPOSE ##
 Reporting system for finetuning monitoring, you can track multiple GPT-2 experiment at the same time with :
