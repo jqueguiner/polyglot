@@ -6,6 +6,8 @@ https://twitter.com/l4rz \
 https://twitter.com/gwern \
 for inspiration
 
+Please Follow https://twitter.com/minimaxir his blog is there : https://minimaxir.com/
+
 # REPORTING #
 ## PURPOSE ##
 Reporting system for finetuning monitoring, you can track multiple GPT-2 experiment at the same time with :
