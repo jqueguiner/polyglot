@@ -20,10 +20,13 @@ TODO :
 
 # QUICKSTART #
 
+## Public registry ##
 https://hub.docker.com/r/guignol95/polyglot
 
+
+## Training on GPT-2 for French ##
 ```
-docker pull guignol95/polyglot:latest
+nvidia-docker run -it -v /mnt/netapp/:/mnt/netapp/ -e REPORTING_CONFIG=/mnt/netapp/config.yml -e DATASET_SIZE=500M -e LANGUAGE=fr -e MODEL_NAME=774M guignol95/polyglot:latest
 ```
 
 # REPORTING #
