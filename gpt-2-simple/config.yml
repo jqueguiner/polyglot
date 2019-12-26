@@ -1,4 +1,4 @@
 monitoring-api:
-	url_metrics: http://localhost
-	port: 6006
-	write_token: 'NH4NRq3RZcDfyYVM7BupnDpseoBEXkiuRrqeRk2QWXzgGua7VpfRHHRNNHn4AvgM'
+  url_metrics: http://localhost
+  port: 6006
+  write_token: 'NH4NRq3RZcDfyYVM7BupnDpseoBEXkiuRrqeRk2QWXzgGua7VpfRHHRNNHn4AvgM'
