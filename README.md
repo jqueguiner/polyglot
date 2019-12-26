@@ -16,6 +16,8 @@ Reporting system for finetuning monitoring, you can track multiple GPT-2 experim
 
 Example : http://www.watch-me-learn-to-talk.com/progress
 
+Mainly it's used to train all language using INRIA OSCAR dataset : https://traces1.inria.fr/oscar/
+
 ## PRE-REQUISITES ##
 Have a postgresql database
 with the appropriate schema
