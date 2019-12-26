@@ -32,7 +32,7 @@ RUN mkdir -p $WORKSPACE
 WORKDIR $WORKSPACE
 
 # training wrapper
-COPY ./train_language.sh $WORKSPACE/train_language.sh
+COPY ./train_language.sh /opt/train_language.sh
 
 # INRIA OSCAR Dataset https://traces1.inria.fr/oscar/
 ENV DATASET_URL https://traces1.inria.fr/oscar/files/Compressed/
@@ -59,7 +59,6 @@ ENV OVERWRITE false
 ENV MULTI_GPU true
 ENV REPORTING_CONFIG $WORKSPACE/config.yml
 
-
 ENTRYPOINT ["/bin/bash"]
 
-CMD ["train_language.sh"]
+CMD ["/opt/train_language.sh"]
