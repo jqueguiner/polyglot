@@ -1,11 +1,13 @@
-FROM python:3
+FROM ubuntu:18.04
 
 RUN apt-get update && apt-get install -y \
 	libpq-dev \
 	less \
 	curl \
 	wget \
-	vim
+	vim \
+        python3 \
+        python3-pip
 
 
 ENV LC_ALL C.UTF-8
@@ -16,14 +18,10 @@ ENV WORKSPACE /workspace
 
 WORKDIR $WORKSPACE
 
-COPY ./frontend/ $WORKSPACE
+COPY ./monitoring/ $WORKSPACE
 
 RUN pip3 install -r $WORKSPACE/requirements.txt
 
 EXPOSE 5000
 
-ENTRYPOINT ["python3"]
-
-CMD ["main.py"]
-
-#CMD 'flask run --port 80 --host 0.0.0.0'
+#CMD ["flask run --port 5000 --host 0.0.0.0"]

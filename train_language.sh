@@ -1,6 +1,6 @@
 
 source /opt/extract.sh
-
+cd $WORKSPACE
 # DATASET_URL = "" will lead to local DATASET definition
 if ! [[ -z "$DATASET_URL" ]]; then
 	# special url binding for OSCAR dataset
@@ -20,15 +20,12 @@ if ! [[ -z "$DATASET_URL" ]]; then
       echo "$filename already exist : skipping pre-processing"    
     fi
 
-    for f in $(ls | grep $filename); do
-        export DATASET=$f
-    done
 fi
 
-
+export DATASET=${filename}_preprocessed
 # GET the first DATASET_SIZE MB of DATASET
-head -c $DATASET_SIZE $DATASET > ${DATASET}_preprocessed
-
+#head -c $DATASET_SIZE $DATASET > ${DATASET}_preprocessed
+dd if=$filename count=$DATASET_SIZE bs=1M > $DATASET
 
 available_models=$(gpt_2_simple list_models)
 
@@ -48,7 +45,7 @@ if [[ $available_models == *"$MODEL_NAME"* ]]; then
             --checkpoint_dir $CHECKPOINT_DIR \
             --model_name $MODEL_NAME \
             --model_dir $MODEL_DIR \
-            --dataset ${DATASET}_preprocessed \
+            --dataset $DATASET \
             --steps $STEPS \
             --restore_from $RESTORE_FROM \
             --sample_every $SAMPLE_EVERY \
