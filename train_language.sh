@@ -11,12 +11,18 @@ if ! [[ -z "$DATASET_URL" ]]; then
 		dl_filename="${DATASET_URL##*/}"
 	fi
 	filename=$(echo "$dl_filename" | cut -f 1 -d '.')
+    
+    if [ ! -f "$filename" ]; then
+      echo "$filename does not exist : pre-processing"
+      wget -O $dl_filename $DATASET_URL
+      extract $dl_filename
+    else
+      echo "$filename already exist : skipping pre-processing"    
+    fi
 
-	wget -O $dl_filename $DATASET_URL
-	extract $dl_filename
-	for f in $(ls | grep $filename); do
-		export DATASET=$f
-	done
+    for f in $(ls | grep $filename); do
+        export DATASET=$f
+    done
 fi
 
 
@@ -38,19 +44,19 @@ if [[ $available_models == *"$MODEL_NAME"* ]]; then
   fi
 
   gpt_2_simple finetune \
-			--run_name $RUN_NAME \
-			--checkpoint_dir $CHECKPOINT_DIR \
-			--model_name $MODEL_NAME \
-			--model_dir $MODEL_DIR \
-			--dataset ${DATASET}_preprocessed \
-			--steps $STEPS \
-			--restore_from $RESTORE_FROM \
-			--sample_every $SAMPLE_EVERY \
-			--print_every $PRINT_EVERY \
-			--optimizer $OPTIMIZER \
-			--overwrite $OVERWRITE \
-			--multi_gpu $MULTI_GPU \
-			--reporting_config $REPORTING_CONFIG
+            --run_name $RUN_NAME \
+            --checkpoint_dir $CHECKPOINT_DIR \
+            --model_name $MODEL_NAME \
+            --model_dir $MODEL_DIR \
+            --dataset ${DATASET}_preprocessed \
+            --steps $STEPS \
+            --restore_from $RESTORE_FROM \
+            --sample_every $SAMPLE_EVERY \
+            --print_every $PRINT_EVERY \
+            --optimizer $OPTIMIZER \
+            --overwrite $OVERWRITE \
+            --multi_gpu $MULTI_GPU \
+            --reporting_config $REPORTING_CONFIG
 else
   echo "[ERROR] $MODEL_NAME is not part of available OpenAI GPT-2 models should be in list:"
   echo $available_models

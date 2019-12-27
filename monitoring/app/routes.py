@@ -12,8 +12,7 @@ import yaml
 with open("config.yml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
-dbconf = cfg['pgsql']
-appconf = cfg['api']
+dbconf=cfg['pgsql']
 
 def connectdb():
     connection = psycopg2.connect(user=dbconf['user'],
@@ -25,23 +24,17 @@ def connectdb():
     return cursor, connection
 
 
-def is_write_token_valid(token):
-    return appconf['write_token'] == token
-
-
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', title='A.I. Experiments')
+    return render_template('index.html', title='OVHcloud A.I. Experiments')
 
-@app.route('/get_experiments', methods=['GET'])
+@app.route('/get_experiments', methods=['POST', 'GET'])
 def get_experiments():
     cursor, connection = connectdb()
     experiments = []
     columns = ('id', 'name', 'description')
-
-    cursor.execute("SELECT %s, %s, %s FROM experiments ORDER BY id", columns)
-
+    cursor.execute("""SELECT %s, %s, %s FROM experiments ORDER BY id""" % columns)
     for row in cursor.fetchall():
         experiments.append(dict(zip(columns, row)))
 
@@ -49,7 +42,7 @@ def get_experiments():
     return experiments
 
 
-@app.route('/get_experiment_by_id', methods=['GET'])
+@app.route('/get_experiment_by_id', methods=['POST', 'GET'])
 def get_experiment_by_id():
     content = request.get_json(force=True)
 
@@ -58,7 +51,7 @@ def get_experiment_by_id():
 
     columns = ('id', 'name', 'description')
 
-    cursor.execute("SELECT %s, %s, %s FROM experiments WHERE id = %d", columns + (content['id']))
+    cursor.execute("""SELECT %s, %s, %s FROM experiments WHERE id = %d""" % ('id', 'name', 'description', content['id']))
 
     for row in cursor.fetchall():
         experiments.append(dict(zip(columns, row)))
@@ -67,7 +60,7 @@ def get_experiment_by_id():
 
     return json.dumps(experiments), 200
 
-@app.route('/get_experiment_by_name', methods=['GET'])
+@app.route('/get_experiment_by_name', methods=['POST', 'GET'])
 def get_experiment_by_name():
     content = request.get_json(force=True)
 
@@ -75,7 +68,7 @@ def get_experiment_by_name():
 
     columns = ('id', 'name', 'description')
 
-    cursor.execute("SELECT %s, %s, %s FROM experiments WHERE name = '%s'", columns + (content['name']))
+    cursor.execute("""SELECT %s, %s, %s FROM experiments WHERE name = '%s'""" % ('id', 'name', 'description', content['name']))
 
     try:
         experiment = dict(zip(columns, cursor.fetchone()))
@@ -87,38 +80,30 @@ def get_experiment_by_name():
     return json.dumps(experiment), 200
 
 
-@app.route('/create_experiment', methods=['POST'])
+@app.route('/create_experiment', methods=['POST', 'GET'])
 def create_experiment():
-    if is_write_token_valid(request.headers['X-API-TOKEN']):
-    
-        content = request.get_json(force=True)
+    content = request.get_json(force=True)
 
-        cursor, connection = connectdb()
+    cursor, connection = connectdb()
 
-        postgres_insert_query = """INSERT INTO experiments (name, description) 
-            VALUES (%s, %s)  RETURNING id;"""
+    postgres_insert_query = """INSERT INTO experiments (name, description) VALUES (%s, %s)  RETURNING id;"""
+    record_to_insert = (content['name'], content['description'])
 
-        record_to_insert = (content['name'], content['description'])
+    cursor.execute(postgres_insert_query, record_to_insert)
+    experiment = {'id': cursor.fetchone()[0]}
 
-        cursor.execute(postgres_insert_query, record_to_insert)
+    connection.commit()
+    connection.close()
 
-        experiment = {'id': cursor.fetchone()[0]}
-
-        connection.commit()
-        connection.close()
-
-        return json.dumps(experiment), 200
-    else:
-        return 'Invalid token.', 403
+    return json.dumps(experiment), 200
 
 
-@app.route('/get_progress', methods=['GET'])
+@app.route('/get_progress', methods=['POST', 'GET'])
 def get_progress():
     content = request.get_json(force=True)
     cursor, connection = connectdb()
     experiments = get_experiments()
     progress = []
-
     for experiment in experiments:
         experiment_id = experiment['id']
         cursor.execute("""SELECT key, value, step, time, timestamp FROM (SELECT key, value, step, time, to_char(timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS timestamp FROM metrics WHERE experiment_id=%s AND key='%s' ORDER BY RANDOM() LIMIT 1000) AS sample ORDER BY timestamp""" % (experiment_id, content['y']))
@@ -129,15 +114,8 @@ def get_progress():
            metrics.append(dict(zip(columns_metrics, row)))
 
         columns_text = ('key', 'value', 'text_en', 'step', 'loss', 'time', 'timestamp')
-
-        query = ("""SELECT key, value, text_en, step, loss, time, timestamp 
-            FROM ((SELECT key, value, text_en, step, loss, time, to_char(timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS timestamp 
-            FROM texts WHERE experiment_id=%d AND key = 'best_loss' ORDER BY loss ASC LIMIT 25) 
-            UNION (SELECT key, value, text_en, step, loss, time, to_char(timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS timestamp 
-            FROM texts WHERE experiment_id=%d AND key != 'best_loss' ORDER BY RANDOM() LIMIT 25) 
-            UNION (SELECT key, value, text_en, step, loss, time, to_char(timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS timestamp 
-            FROM texts WHERE experiment_id=%d AND key != 'best_loss' ORDER BY step DESC LIMIT 10)) AS texts""") % (experiment_id, experiment_id, experiment_id)
-
+#        cursor.execute("""(SELECT key, value, text_en, step, loss, time, to_char(timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS timestamp FROM texts WHERE experiment_id=%s AND key = 'best_loss' ORDER BY loss ASC LIMIT 25) UNION (SELECT key, value, text_en, step, loss, time, to_char(timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS timestamp FROM texts WHERE experiment_id=%s AND key != 'best_loss' ORDER BY RANDOM() LIMIT 25)""" % (experiment_id, experiment_id))
+        query = ("""SELECT key, value, text_en, step, loss, time, timestamp FROM ((SELECT key, value, text_en, step, loss, time, to_char(timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS timestamp FROM texts WHERE experiment_id=%s AND key = 'best_loss' ORDER BY loss ASC LIMIT 25) UNION (SELECT key, value, text_en, step, loss, time, to_char(timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS timestamp FROM texts WHERE experiment_id=%s AND key != 'best_loss' ORDER BY RANDOM() LIMIT 25) UNION (SELECT key, value, text_en, step, loss, time, to_char(timestamp at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS timestamp FROM texts WHERE experiment_id=%s AND key != 'best_loss' ORDER BY step DESC LIMIT 10)) AS texts""") % (experiment_id, experiment_id, experiment_id)
         cursor.execute(query)
         for row in cursor.fetchall():
            texts.append(dict(zip(columns_text, row)))
@@ -145,13 +123,15 @@ def get_progress():
         progress.append({'experiment': experiment, 'metrics': metrics, 'text': texts })
 
     connection.close()
+    if flask.request.method == 'POST':
+        return json.dumps(progress), 200
+    elif flask.request.method == 'GET':
+        return render_template('json.html', data=progress)
+    else :
+        return progress
 
-    
-    return json.dumps(progress), 200
 
-
-
-@app.route('/progress', methods=['GET'])
+@app.route('/progress')
 def progress():
     experiments = get_experiments()
     return render_template('progress.html', title='A.I. Expermients', experiments=experiments)
@@ -159,40 +139,33 @@ def progress():
 
 @app.route('/push_metric', methods=['POST'])
 def push_metric():
-    if is_write_token_valid(request.headers['X-API-TOKEN']):
-        content = request.get_json(force=True)
-        cursor, connection = connectdb()
+    content = request.get_json(force=True)
+    cursor, connection = connectdb()
 
-        postgres_insert_query = "INSERT INTO metrics (experiment_id, key, value, step) VALUES (%d, %s, %f, %d) "
-        record_to_insert = (content['experiment_id'], content['key'], content['value'], content['step'])
-        cursor.execute(postgres_insert_query, record_to_insert)
+    postgres_insert_query = """ INSERT INTO metrics (experiment_id, key, value, step) VALUES (%s, %s, %s, %s) """
+    record_to_insert = (content['experiment_id'], content['key'], content['value'], content['step'])
+    cursor.execute(postgres_insert_query, record_to_insert)
 
-        connection.commit()
-        connection.close()
+    connection.commit()
+    connection.close()
 
-        return 'ok', 200
-    else:
-        return 'Invalid token.', 403
+    return 'ok', 200
 
 
 @app.route('/push_text', methods=['POST'])
 def push_text():
-    if is_write_token_valid(request.headers['X-API-TOKEN']):
-        content = request.get_json(force=True)
-        cursor, connection = connectdb()
+    content = request.get_json(force=True)
+    cursor, connection = connectdb()
 
-        postgres_insert_query = "INSERT INTO texts (experiment_id, key, value, text_en, step, loss, time) VALUES (%s, %s, %s, %s, %d, %f, %f)"
+    postgres_insert_query = """ INSERT INTO texts (experiment_id, key, value, text_en, step, loss, time) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+    record_to_insert = (content['experiment_id'], content['key'], content['value'], content['text_en'], content['step'], content['loss'], content['time'])
+    print("pushing %s with loss %  for step %s" % (content['key'], content['loss'], content['step']))
+    cursor.execute(postgres_insert_query, record_to_insert)
 
-        record_to_insert = (content['experiment_id'], content['key'], content['value'], content['text_en'], content['step'], content['loss'], content['time'])
-        print("pushing %s with loss %  for step %s" % (content['key'], content['loss'], content['step']))
-        cursor.execute(postgres_insert_query, record_to_insert)
+    connection.commit()
+    connection.close()
 
-        connection.commit()
-        connection.close()
-
-        return 'ok', 200
-    else:
-        return 'Invalid token.', 403
+    return 'ok', 200
 
 
 
