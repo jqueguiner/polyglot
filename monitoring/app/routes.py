@@ -8,8 +8,11 @@ import json
 
 import psycopg2
 import yaml
+import os
 
-with open("config.yml", 'r') as ymlfile:
+filepath = os.environ['CONFIG_FILE_PATH']
+
+with open(filepath, 'r') as ymlfile:
     cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
 dbconf=cfg['pgsql']
@@ -27,7 +30,7 @@ def connectdb():
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', title='OVHcloud A.I. Experiments')
+    return render_template('index.html', title='A.I. Experiments')
 
 @app.route('/get_experiments', methods=['POST', 'GET'])
 def get_experiments():

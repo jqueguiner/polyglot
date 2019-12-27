@@ -22,6 +22,8 @@ COPY ./monitoring/ $WORKSPACE
 
 RUN pip3 install -r $WORKSPACE/requirements.txt
 
+ENV CONFIG_FILE_PATH $WORKSPACE/config.yml
+
 EXPOSE 5000
 
-#CMD ["flask run --port 5000 --host 0.0.0.0"]
+CMD flask run --host=0.0.0.0
