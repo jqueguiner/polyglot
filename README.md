@@ -49,13 +49,26 @@ training :
 https://hub.docker.com/r/guignol95/polyglot
 
 
-## Training on GPT-2 for French ##
+## Training on GPT-2 ##
+
+### French ###
 ```
 nvidia-docker run -it \
 -v /mnt/netapp/:/mnt/netapp/ \
 -e REPORTING_CONFIG=/mnt/netapp/config.yml \
--e DATASET_SIZE=500M \
+-e DATASET_SIZE=512 \
 -e LANGUAGE=fr \
+-e MODEL_NAME=774M \
+guignol95/polyglot:latest
+```
+
+### Spanish ###
+```
+nvidia-docker run -it \
+-v /mnt/netapp/:/mnt/netapp/ \
+-e REPORTING_CONFIG=/mnt/netapp/config.yml \
+-e DATASET_SIZE=512 \
+-e LANGUAGE=es \
 -e MODEL_NAME=774M \
 guignol95/polyglot:latest
 ```
@@ -100,7 +113,7 @@ docker build -t gpt-2-simple -f docker.gpt-2-simple  .
 ```
 nvidia-docker run -it -v /mnt/netapp/:/mnt/netapp/ \
 -e REPORTING_CONFIG=/mnt/netapp/config.yml \
--e DATASET_SIZE=2M \
+-e DATASET_SIZE=2 \
 -e LANGUAGE=an \
 -e MODEL=774M \
 -e RUN_NAME=an_774M \
@@ -118,7 +131,7 @@ What it means:
 | WORKSPACE        | /workspace                                       | Yes                 | nvidia-docker run -d -e WORKSPACE=/my_custom_workspace gpt-2-simple               | The WORKDIR instruction sets the working directory for any RUN, CMD, ENTRYPOINT, COPY and ADD instructions that follow it in the Dockerfile. If the WORKDIR doesn’t exist, it will be created even if it’s not used in any subsequent Dockerfile instruction. |
 | DATASET_URL      | https://traces1.inria.fr/oscar/files/Compressed/ | Yes                 | nvidia-docker run -d -e DATASET_URL=https://my_custom_url/corpus.txt gpt-2-simple |  URL of the corpus to train on, if empty the algorithm will train on raw file set by $DATASET When having a non empty DATASET_URL the DATASET will be manipulated and saved to the $DATASET file                                                              |
 | LANGUAGE         | en                                               | Yes                 | nvidia-docker run -d -e LANGUAGE=en gpt-2-simple                                  | Language for the training                                                                                                                                                                                                                                     |
-| DATASET_SIZE     | 10M                                              | Yes                 | nvidia-docker run -d -e DATASET_SIZE=10M gpt-2-simple                             | First 10M of file to be trained on                                                                                                                                                                                                                            |
+| DATASET_SIZE     | 10                                              | Yes                 | nvidia-docker run -d -e DATASET_SIZE=10 gpt-2-simple                             | First 10MB of file to be trained on                                                                                                                                                                                                                            |
 | REPORTING_CONFIG | $WORKSPACE/config.yml                            | Yes                 | nvidia-docker run -d -e REPORTING_CONFIG=/workspace/config.yml gpt-2-simple       | Location of the config.yml file used for training reporting dashbaord, if set to null ("") it will disable the reporting                                                                                                                                      |
 | RUN_NAME         | $LANGUAGE\_$MODEL_NAME                           | Yes                 | nvidia-docker run -d -e RUN_NAME=custom_run_name gpt-2-simple                     | Name for the run better to be unique for reporting                                                                                                                                                                                                            |
 | CHECKPOINT_DIR   | $WORKSPACE/checkpoint                            | Yes                 | nvidia-docker run -d -e CHECKPOINT_DIR=/workspace/checkpoint gpt-2-simple         | Directory to store the checkpoints                                                                                                                                                                                                                            |
