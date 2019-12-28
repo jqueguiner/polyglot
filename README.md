@@ -14,8 +14,29 @@ TODO :
 - GENERAL ARCHITECTURE DIAGRAM
 - WRITE QUICKSTART
 - DOCKERHUB FOR MONITORING
-- DOCKER COMPOSE ?
-- 
+- QUICKSTAT FOR MONITORING
+- NO MONITORING OPTION IN FINETUNING
+
+
+# GENERAL CONSIDERATIONS #
+## MEMORY USAGE ##
+Estimated 20GB RAM for a dataset of 500MB
+
+
+| DATASET_SIZE (MB) | HUMAN READABLE SIZE | ESTIMATED RAM  USAGE  (GB) |
+|-------------------|---------------------|----------------------------|
+| 512               | 512 MB              | 20                         |
+| 1024              | 1   GB              | 40                         |
+| 1536              | 1.5 GB              | 60                         |
+| 2048              | 2   GB              | 80                         |
+| 2560              | 2.5 GB              | 100                        |
+| 3072              | 3   GB              | 120                        |
+| 3584              | 3.5 GB              | 140                        |
+| 4096              | 4   GB              | 160                        |
+| 4608              | 4.5 GB              | 180                        |
+| 5120              | 5   GB              | 200                        |
+| 5632              | 5.5 GB              | 220                        |
+| 6144              | 6   GB              | 240                        |
 
 
 # QUICKSTART #
