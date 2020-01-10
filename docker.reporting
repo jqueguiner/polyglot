@@ -18,7 +18,7 @@ ENV WORKSPACE /workspace
 
 WORKDIR $WORKSPACE
 
-COPY ./monitoring/ $WORKSPACE
+COPY ./reporting/ $WORKSPACE
 
 RUN pip3 install -r $WORKSPACE/requirements.txt
 

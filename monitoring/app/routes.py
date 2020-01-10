@@ -137,7 +137,10 @@ def get_progress():
 @app.route('/progress')
 def progress():
     experiments = get_experiments()
-    return render_template('progress.html', title='A.I. Expermients', experiments=experiments)
+    progress = get_progress()
+    print(progress)
+
+    return render_template('progress.html', title='A.I. Expermients', experiments=experiments, progress = progress)
 
 
 @app.route('/push_metric', methods=['POST'])

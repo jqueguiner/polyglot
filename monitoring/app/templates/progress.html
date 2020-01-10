@@ -1,38 +1,47 @@
-
-
 {% include "header.html" %}
+
 <figure class="highcharts-figure">
   <div id="ts-chart">
     <img src="https://i.gifer.com/origin/ee/ee23fe6bb28fad341eef173f611ae952.gif"/>
   </div>
   <div id="step-chart"></div>
   <div id="best_loss-chart"></div>
+  <div id="best_loss_time-chart"></div>
   <br/>
   <br/>
   <br/>
-  <div id="text">
-    <section id="more" class="container pb-5">
-      <div class="row">
-        <div class="col-md-12">
-          <div class="table-responsive">
-            <table id="text_samples" class="table table-hover table-sm display" style="width:100%">
-              <thead>
-                <tr>
-                  <th>experiment name</th>
-                  <th>Type</th>
-                  <th>Text</th>
-                  <th>Text English</th>
-                  <th>Step</th>
-                  <th>Hidden Step</th>
-                </tr>
-              </thead>
-            </table>
+
+  <div class="card border-0">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link active" href="#tab1" data-toggle="tab">Tab</a>
+      </li>
+    </ul>
+    <div class="tab-content px-1 pt-3">
+      <div class="tab-pane active" id="tab1">
+        <div id="text">
+          <section id="more" class="container pb-5">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="table-responsive">
+                  <table id="text_samples" class="table table-hover table-sm display" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>experiment name</th>
+                        <th>Type</th>
+                        <th>Text</th>
+                        <th>Text English</th>
+                        <th>Step</th>
+                        <th>Hidden Step</th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
       </div>
-    </section>
-  </div>
-  </table>
+    </div>
   </div>
 </figure>
 {% include "main.html" %}
@@ -126,7 +135,8 @@
   function refresh_all() {
     ts_chart = refresh('ts-chart', 'timestamp', 'loss', 'loss vs time', 'loss vs time', 'Time', 'Loss', 'date')
     step_chart = refresh('step-chart', 'step', 'loss', 'loss vs step', 'loss vs step', 'Step', 'Loss', 'int')
-    bestloss_chart = refresh('best_loss-chart', 'step', 'best_loss', 'Best loss vs time', 'Best loss vs step', 'Step', 'Best Loss', 'int')
+    bestloss_chart = refresh('best_loss-chart', 'step', 'best_loss', 'Best loss vs step', 'Best loss vs step', 'Step', 'Best Loss', 'int')
+    bestlosstime_chart = refresh('best_loss_time-chart', 'timestamp', 'best_loss_time', 'Best loss vs time', 'Best loss vs time', 'Time', 'Best Loss', 'date')
     draw_table()
   }
 
