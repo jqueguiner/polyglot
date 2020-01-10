@@ -3,34 +3,37 @@ source /opt/extract.sh
 cd $WORKSPACE
 # DATASET_URL = "" will lead to local DATASET definition
 if ! [[ -z "$DATASET_URL" ]]; then
-	# special url binding for OSCAR dataset
-	if [[ "$DATASET_URL" == "https://traces1.inria.fr/oscar/files/Compressed/" ]]; then
-		dl_filename=${LANGUAGE}_dedup.txt.gz
-		DATASET_URL=${DATASET_URL}${dl_filename}
-	else
-		dl_filename="${DATASET_URL##*/}"
-	fi
-	filename=$(echo "$dl_filename" | cut -f 1 -d '.')
+  # special url binding for OSCAR dataset
+  if [[ "$DATASET_URL" == "https://traces1.inria.fr/oscar/files/Compressed/" ]]; then
+    dl_filename=${LANGUAGE}_dedup.txt.gz
+    DATASET_URL=${DATASET_URL}${dl_filename}
+  else
+    dl_filename="${DATASET_URL##*/}"
+  fi
+  
+  filename=$(echo "$dl_filename" | cut -f 1 -d '.')
     
-	if [ -f "$filename" ]; then
-		echo "[INFO] $filename already exist : skipping download" 
-	elif [ -f "${filename}.txt" ]; then
-		echo "[INFO] ${filename}.txt already exist : skipping download" 
-		filename=${filename}.txt
-    else
-      echo "[INFO] $filename does not exist : downloading"
-      wget -O $dl_filename $DATASET_URL
-      extract $dl_filename
+  if [ -f "$filename" ]; then
+    echo "[INFO] $filename already exist : skipping download" 
+  elif [ -f "${filename}.txt" ]; then
+    echo "[INFO] ${filename}.txt already exist : skipping download" 
+    filename=${filename}.txt
+    echo "[INFO] filename set to : $filename"
+  else
+    echo "[INFO] $filename does not exist : downloading"
+    wget -O $dl_filename $DATASET_URL
+    extract $dl_filename
 	  
-	  if [[ "$DATASET_URL" == "https://traces1.inria.fr/oscar/files/Compressed/" ]]; then
-        filename=${filename}.txt
-      fi      
+    if [[ "$DATASET_URL" == *"https://traces1.inria.fr/oscar/files/Compressed/"* ]]; then
+      filename=${filename}".txt"
+      echo "[INFO] filename set to : $filename"
+    fi      
 
-    fi
+  fi
 
-    echo "[INFO] $filename ready for pre-processing"
-    echo "[INFO] \$DATASET set to $DATASET ready for pre-processing"
-    export DATASET=${filename}_preprocessed
+  echo "[INFO] $filename ready for pre-processing"
+  echo "[INFO] \$DATASET set to $DATASET ready for pre-processing"
+  export DATASET=${filename}_preprocessed
 
 fi
 
@@ -53,7 +56,7 @@ if [[ $available_models == *"$MODEL_NAME"* ]]; then
     export CHECKPOINT_DIR=$WORKSPACE/checkpoint/$RUN_NAME
   fi
 
-cmd="gpt_2_simple finetune \
+  cmd="gpt_2_simple finetune \
             --run_name $RUN_NAME \
             --checkpoint_dir $CHECKPOINT_DIR \
             --model_name $MODEL_NAME \
